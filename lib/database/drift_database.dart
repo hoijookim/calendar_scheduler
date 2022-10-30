@@ -15,7 +15,7 @@ part 'drift_database.g.dart'; // import보다 넓은 기능
   tables: [
     // database 테이블로 인식 -> type선언 식
     Schedules,
-    CategoryColors, D
+    CategoryColors,
   ],
 )
 // 클래스 상속 받음 _$LocalDatabase -> drift가 만들어주는 클래스 -> drift_database.g.dart에 생성됨
@@ -31,7 +31,7 @@ class LocalDatabase extends _$LocalDatabase {
   Future<List<CategoryColor>> getCategoryColors() =>
       select(categoryColors).get(); // get() 모든 값 가져오기
 
-기 @override
+  @override
   int get schemaVersion => 1; // 테이블 상태의 버전
 }
 
