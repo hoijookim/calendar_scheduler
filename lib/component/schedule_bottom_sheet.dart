@@ -1,6 +1,7 @@
 import 'package:calendar_scheduler/const/colors.dart';
 import 'package:calendar_scheduler/component/custom_text_field.dart';
 import 'package:calendar_scheduler/database/drift_database.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -72,9 +73,11 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
                           }
                           return _ColorPicker(
                             colors: snapshot.hasData ? snapshot.data! : [],
-                            selectedId: selectedColorId,
+                            selectedColorId: selectedColorId,
                             colorIdSetter: (int id) {
-                              selectedColorId = id;
+                              setState(() {
+                                selectedColorId = id;
+                              });
                             },
                           );
                         }),
@@ -92,7 +95,7 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
     );
   }
 
-  void onSavePressed() {
+  void onSavePressed() async {
     // formKey는 생성을 했는데
     // Form 위젯과 결합을 안했을 때
     if (formKey.currentState == null) {
@@ -107,6 +110,18 @@ class _ScheduleBottomSheetState extends State<ScheduleBottomSheet> {
       print('StartTime : $startTime');
       print('EndTime : $endTime');
       print('Content : $content');
+
+      await GetIt.I<LocalDatabase>().createSchedule(
+        SchedulesCompanion(
+          date: Value(widget.selectedDate),
+          startTime: Value(startTime!),
+          endTime: Value(endTime!),
+          content: Value(content!),
+          colorId: Value(selectedColorId!),
+        ),
+      );
+
+      Navigator.of(context).pop();
     } else {
       // 어떤 TextField 하나라도 String값이 리턴되 에러가 있다고 인식 -> false
       print('에러가 있습니다');
@@ -174,12 +189,12 @@ typedef ColorIdSetter = void Function(int id);
 
 class _ColorPicker extends StatelessWidget {
   final List<CategoryColor> colors;
-  final int? selectedId;
+  final int? selectedColorId;
   final ColorIdSetter colorIdSetter;
 
   const _ColorPicker({
     required this.colors,
-    required this.selectedId,
+    required this.selectedColorId,
     required this.colorIdSetter,
     Key? key,
   }) : super(key: key);
@@ -197,7 +212,7 @@ class _ColorPicker extends StatelessWidget {
               },
               child: renderColor(
                 e,
-                selectedId == e.id,
+                selectedColorId == e.id,
               ),
             ),
           )

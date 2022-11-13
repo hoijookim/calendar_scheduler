@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:calendar_scheduler/model/category_color.dart';
 import 'package:calendar_scheduler/model/schedule.dart';
+import 'package:calendar_scheduler/model/schedule_with_color.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
@@ -30,6 +31,39 @@ class LocalDatabase extends _$LocalDatabase {
 
   Future<List<CategoryColor>> getCategoryColors() =>
       select(categoryColors).get(); // get() 모든 값 가져오기
+
+  Future<int >removeSchedule(int id) =>
+      (delete(schedules)..where((tbl) => tbl.id.equals(id))).go();
+
+  Stream<List<ScheduleWithColor>> watchSchedules(DateTime date) {
+    final query = select(schedules).join([
+      innerJoin(categoryColors, categoryColors.id.equalsExp(schedules.colorId))
+    ]);
+
+    query.where(
+      // 테이블 직접 명시
+      schedules.date.equals(date),
+    );
+    query.orderBy(
+      // asc -> ascending 오름차손
+      // desc -> descing 내림차순
+      [
+        OrderingTerm.asc(schedules.startTime),
+      ],
+    );
+
+    // rows : filtering 된 모든 값들
+    return query.watch().map(
+          (rows) => rows
+              .map(
+                (row) => ScheduleWithColor(
+                  schedule: row.readTable(schedules),
+                  categoryColor: row.readTable(categoryColors),
+                ),
+              )
+              .toList(),
+        );
+  }
 
   @override
   int get schemaVersion => 1; // 테이블 상태의 버전

@@ -75,10 +75,11 @@ class CustomTextField extends StatelessWidget {
             ]
           : [],
       decoration: InputDecoration(
-        border: InputBorder.none,
-        filled: true,
-        fillColor: Colors.grey[300],
-      ),
+          border: InputBorder.none,
+          filled: true,
+          fillColor: Colors.grey[300],
+          suffixText: isTime ? '시' : null // 접미사
+          ),
     );
   }
 }
