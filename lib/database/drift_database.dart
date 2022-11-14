@@ -23,6 +23,9 @@ part 'drift_database.g.dart'; // import보다 넓은 기능
 class LocalDatabase extends _$LocalDatabase {
   LocalDatabase() : super(_openConnection());
 
+  Future<Schedule> getScheduleById(int id) =>
+      (select(schedules)..where((tbl) => tbl.id.equals(id))).getSingle();
+
   Future<int> createSchedule(SchedulesCompanion data) =>
       into(schedules).insert(data); // id를 리턴받을 수 있음
 
@@ -32,7 +35,10 @@ class LocalDatabase extends _$LocalDatabase {
   Future<List<CategoryColor>> getCategoryColors() =>
       select(categoryColors).get(); // get() 모든 값 가져오기
 
-  Future<int >removeSchedule(int id) =>
+  Future<int> updateScheduleById(int id, SchedulesCompanion data) =>
+      (update(schedules)..where((tbl) => tbl.id.equals(id))).write(data);
+
+  Future<int> removeSchedule(int id) =>
       (delete(schedules)..where((tbl) => tbl.id.equals(id))).go();
 
   Stream<List<ScheduleWithColor>> watchSchedules(DateTime date) {
